@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}
+Secret Created
+{% endblock %}
+
+{% block styles %}
+
+.success-card {
+    max-width: 700px;
+    margin: 60px auto;
+    text-align: center;
+}
+
+.success-card h2 {
+    margin-bottom: 12px;
+}
+
+.success-card p {
+    color: var(--muted);
+    margin-bottom: 30px;
+}
+
+.secret-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.secret-value {
+    flex: 1;
+    padding: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 16px;
+    user-select: all;
+}
+
+.secret-value.hidden {
+    filter: blur(8px);
+    transition: filter .2s;
+}
+
+.secret-value.visible {
+    filter: none;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+}
+
+.secondary:hover {
+    background: rgba(255,255,255,.05);
+}
+
+.home-link {
+    display: inline-block;
+    margin-top: 30px;
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.home-link:hover {
+    color: var(--text);
+}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="card success-card">
+
+    <h2>✅ Secret Created</h2>
+
+    <p>
+        Save this Secret ID. Anyone with this ID (and password, if set)
+        will be able to reveal the secret only once.
+    </p>
+
+    <div class="secret-box">
+
+        <div id="secret-id" class="secret-value hidden">
+            {{ secret_id }}
+        </div>
+
+    </div>
+
+    <div class="actions">
+
+        <button type="button" onclick="toggleSecret()">
+            Show
+        </button>
+
+        <button type="button" class="secondary" onclick="copySecret()">
+            Copy
+        </button>
+
+    </div>
+
+    <a class="home-link" href="/">
+        ← Create another secret
+    </a>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+const secret = document.getElementById("secret-id");
+
+function toggleSecret() {
+    secret.classList.toggle("hidden");
+    secret.classList.toggle("visible");
+}
+
+async function copySecret() {
+    await navigator.clipboard.writeText(secret.textContent.trim());
+
+    const btn = event.target;
+    const text = btn.textContent;
+
+    btn.textContent = "Copied!";
+
+    setTimeout(() => {
+        btn.textContent = text;
+    }, 1500);
+}
+
+</script>
+
+{% endblock %}
