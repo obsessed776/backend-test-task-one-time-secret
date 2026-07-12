@@ -27,37 +27,6 @@ label {
     font-size: 14px;
 }
 
-.result {
-    margin-top: 24px;
-    padding: 16px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-}
-
-.secret {
-    margin-top: 10px;
-    font-family: monospace;
-    color: var(--success);
-    word-break: break-word;
-}
-
-.message {
-    margin-top: 20px;
-    padding: 14px;
-    border-radius: 8px;
-}
-
-.message.error {
-    background: rgba(220, 38, 38, .15);
-    border: 1px solid var(--danger);
-}
-
-.message.success {
-    background: rgba(34, 197, 94, .15);
-    border: 1px solid var(--success);
-}
-
 @media (max-width: 900px) {
     .grid {
         grid-template-columns: 1fr;
@@ -65,7 +34,6 @@ label {
 }
 
 {% endblock %}
-
 
 {% block content %}
 
@@ -78,6 +46,8 @@ label {
 </p>
 
 <div class="grid">
+
+    <!-- Create Secret -->
 
     <div class="card">
 
@@ -93,6 +63,7 @@ label {
                 id="secret"
                 name="secret"
                 placeholder="Write your secret..."
+                autocomplete="off"
                 required
             ></textarea>
 
@@ -105,6 +76,7 @@ label {
                 type="password"
                 name="password"
                 placeholder="Leave empty if not needed"
+                autocomplete="new-password"
             >
 
             <button type="submit">
@@ -115,11 +87,13 @@ label {
 
     </div>
 
+    <!-- Reveal Secret -->
+
     <div class="card">
 
         <h2>Reveal Secret</h2>
 
-        <form action="/reveal" method="post">
+        <form id="reveal-form">
 
             <label for="secret-id">
                 Secret ID
@@ -128,8 +102,8 @@ label {
             <input
                 id="secret-id"
                 type="text"
-                name="secret_id"
-                placeholder="Enter secret id"
+                placeholder="Enter secret ID"
+                autocomplete="off"
                 required
             >
 
@@ -140,8 +114,8 @@ label {
             <input
                 id="reveal-password"
                 type="password"
-                name="password"
                 placeholder="Password if required"
+                autocomplete="current-password"
             >
 
             <button type="submit">
@@ -154,32 +128,25 @@ label {
 
 </div>
 
-{% if created_secret %}
-<div class="message success">
-    Secret created successfully.<br><br>
+{% endblock %}
 
-    <strong>Secret ID</strong>
+{% block scripts %}
 
-    <div class="secret">
-        {{ created_secret }}
-    </div>
-</div>
-{% endif %}
+<script>
+document.getElementById("reveal-form").addEventListener("submit", function (event) {
+    event.preventDefault();
 
-{% if revealed_secret %}
-<div class="message success">
-    <strong>Secret</strong>
+    const secretId = document.getElementById("secret-id").value.trim();
+    const password = document.getElementById("reveal-password").value.trim();
 
-    <div class="secret">
-        {{ revealed_secret }}
-    </div>
-</div>
-{% endif %}
+    let url = `/secret/${encodeURIComponent(secretId)}/reveal`;
 
-{% if error %}
-<div class="message error">
-    {{ error }}
-</div>
-{% endif %}
+    if (password) {
+        url += `?password=${encodeURIComponent(password)}`;
+    }
+
+    window.location.href = url;
+});
+</script>
 
 {% endblock %}

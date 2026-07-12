@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}
+Secret Revealed
+{% endblock %}
+
+{% block styles %}
+
+.secret-card {
+    max-width: 700px;
+    margin: 60px auto;
+}
+
+.secret-card h2 {
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.secret-card p {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 30px;
+}
+
+.secret-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    font-family: monospace;
+    font-size: 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 24px;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+}
+
+.secondary:hover {
+    background: rgba(255,255,255,.05);
+}
+
+.home-link {
+    display: inline-block;
+    margin-top: 30px;
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.home-link:hover {
+    color: var(--text);
+}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="card secret-card">
+
+    <h2>🔓 Secret Revealed</h2>
+
+    <p>
+        This secret has now been revealed and cannot be viewed again.
+    </p>
+
+    <div id="secret" class="secret-box">
+        {{ secret }}
+    </div>
+
+    <div class="actions">
+
+        <button type="button" onclick="copySecret()">
+            Copy Secret
+        </button>
+
+        <a href="/">
+            <button type="button" class="secondary">
+                Create New Secret
+            </button>
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+async function copySecret() {
+    const secret = document.getElementById("secret").textContent.trim();
+
+    await navigator.clipboard.writeText(secret);
+
+    const button = event.target;
+    const originalText = button.textContent;
+
+    button.textContent = "Copied!";
+
+    setTimeout(() => {
+        button.textContent = originalText;
+    }, 1500);
+}
+
+</script>
+
+{% endblock %}

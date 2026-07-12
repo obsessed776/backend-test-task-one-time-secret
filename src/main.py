@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from sqlalchemy import select, update
 
 from src.config import settings
 from src.database.db import engine, SessionDep
@@ -63,3 +64,32 @@ def create_secret(
     session.commit()
     return templates.TemplateResponse(request, "conceal.html",
                                       context={"secret_id": secret_id,})
+
+
+
+@app.get("/secret/{secret_id}/reveal", response_class=HTMLResponse)
+def get_secret_data(
+    request: Request,
+    session: SessionDep,
+    secret_id: str,
+    password: Annotated[str | None, Form()] = None,
+):
+    query = select(Secret).filter_by(
+        id=secret_id,
+        is_viewed=False,
+    ).with_for_update()
+    result = session.execute(query)
+
+    record = result.scalar_one_or_none()
+    if record is None:
+        raise
+
+    update_viewed_status_stmt = update(Secret).filter_by(
+        id=secret_id,
+    ).values(is_viewed=True)
+    session.execute(update_viewed_status_stmt)
+    session.commit()
+
+    decrypted_secret =  security_instance.decrypt(record.secret_data)
+    return templates.TemplateResponse(request, "reveal.html",
+                                      context={"secret": decrypted_secret})
