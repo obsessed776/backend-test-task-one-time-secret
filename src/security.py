@@ -2,6 +2,7 @@ from secrets import token_urlsafe
 from hashlib import sha256
 from base64 import urlsafe_b64encode
 
+from bcrypt import checkpw, hashpw, gensalt
 from cryptography.fernet import Fernet
 
 from src.config import settings
@@ -22,6 +23,12 @@ class Security:
 
     def decrypt(self, encrypted_data: str) -> str:
         return self._fernet.decrypt(encrypted_data.encode("utf-8")).decode("utf-8")
+
+    def hash_password(self, password: str) -> str:
+        return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
+
+    def check_password(self, password: str, hashed_password: str) -> bool:
+        return checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 security_instance = Security()

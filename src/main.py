@@ -46,13 +46,18 @@ def create_secret(
     session: SessionDep,
     secret_data: Annotated[SecretCreate, Depends(secret_create_form)],
 ):
+    hashed_password = None
+    if secret_data.password:
+        hashed_password = security_instance.hash_password(secret_data.password)
+
     encrypted_secret = security_instance.encrypt(secret_data.secret)
     secret_id = security_instance.create_secret_key()
+
     session.add(
         Secret(
             id=secret_id,
             secret_data=encrypted_secret,
-            hashed_password=secret_data.password,
+            hashed_password=hashed_password,
         )
     )
     session.commit()
