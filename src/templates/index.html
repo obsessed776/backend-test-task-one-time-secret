@@ -1,10 +1,185 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
-  <h1>Body</h1>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block styles %}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 30px;
+}
+
+.card h2 {
+    margin-bottom: 20px;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 50px;
+    font-size: 18px;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.result {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.secret {
+    margin-top: 10px;
+    font-family: monospace;
+    color: var(--success);
+    word-break: break-word;
+}
+
+.message {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 8px;
+}
+
+.message.error {
+    background: rgba(220, 38, 38, .15);
+    border: 1px solid var(--danger);
+}
+
+.message.success {
+    background: rgba(34, 197, 94, .15);
+    border: 1px solid var(--success);
+}
+
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+{% endblock %}
+
+
+{% block content %}
+
+<h2 style="text-align:center; margin-bottom:10px;">
+    Share secrets securely
+</h2>
+
+<p class="subtitle">
+    Every secret can be revealed only once.
+</p>
+
+<div class="grid">
+
+    <div class="card">
+
+        <h2>Create Secret</h2>
+
+        <form action="/conceal" method="post">
+
+            <label for="secret">
+                Secret
+            </label>
+
+            <textarea
+                id="secret"
+                name="secret"
+                placeholder="Write your secret..."
+                required
+            ></textarea>
+
+            <label for="create-password">
+                Password (optional)
+            </label>
+
+            <input
+                id="create-password"
+                type="password"
+                name="password"
+                placeholder="Leave empty if not needed"
+            >
+
+            <button type="submit">
+                Create Secret
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Reveal Secret</h2>
+
+        <form action="/reveal" method="post">
+
+            <label for="secret-id">
+                Secret ID
+            </label>
+
+            <input
+                id="secret-id"
+                type="text"
+                name="secret_id"
+                placeholder="Enter secret id"
+                required
+            >
+
+            <label for="reveal-password">
+                Password (optional)
+            </label>
+
+            <input
+                id="reveal-password"
+                type="password"
+                name="password"
+                placeholder="Password if required"
+            >
+
+            <button type="submit">
+                Reveal Secret
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% if created_secret %}
+<div class="message success">
+    Secret created successfully.<br><br>
+
+    <strong>Secret ID</strong>
+
+    <div class="secret">
+        {{ created_secret }}
+    </div>
+</div>
+{% endif %}
+
+{% if revealed_secret %}
+<div class="message success">
+    <strong>Secret</strong>
+
+    <div class="secret">
+        {{ revealed_secret }}
+    </div>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="message error">
+    {{ error }}
+</div>
+{% endif %}
+
+{% endblock %}
