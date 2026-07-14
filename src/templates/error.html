@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block styles %}
+
+.error-card {
+    max-width: 650px;
+    margin: 80px auto;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.error-card h2 {
+    margin-bottom: 16px;
+}
+
+.error-card p {
+    color: var(--muted);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+}
+
+.secondary:hover {
+    background: rgba(255,255,255,.05);
+}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="card error-card">
+
+    <div class="error-icon">
+        {{ icon }}
+    </div>
+
+    <h2>{{ title }}</h2>
+
+    <p>
+        {{ message }}
+    </p>
+
+    <div class="actions">
+
+        <a href="/">
+            <button type="button">
+                Back to Home
+            </button>
+        </a>
+
+        {% if retry_url %}
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import FastAPI, Request, Form, Depends
+from fastapi import FastAPI, Request, Form, Depends, Query
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -66,13 +66,12 @@ def create_secret(
                                       context={"secret_id": secret_id,})
 
 
-
 @app.get("/secret/{secret_id}/reveal", response_class=HTMLResponse)
 def get_secret_data(
     request: Request,
     session: SessionDep,
     secret_id: str,
-    password: Annotated[str | None, Form()] = None,
+    password: str | None = None,
 ):
     query = select(Secret).filter_by(
         id=secret_id,
@@ -81,8 +80,46 @@ def get_secret_data(
     result = session.execute(query)
 
     record = result.scalar_one_or_none()
+    print(record)
     if record is None:
-        raise
+        return templates.TemplateResponse(
+            request,
+            "error.html",
+            context={
+                "title": "Secret Not Found",
+                "icon": "🔍",
+                "message": "The secret does not exist or has already been revealed.",
+                "retry_url": "/",
+            },
+            status_code=404,
+        )
+
+    if record.hashed_password:
+        if not password:
+            return templates.TemplateResponse(
+                request,
+                "error.html",
+                context={
+                    "title": "Password Required",
+                    "icon": "🔑",
+                    "message": "This secret is protected by a password.",
+                    "retry_url": "/",
+                },
+                status_code=401,
+            )
+
+        if not security_instance.check_password(password, record.hashed_password):
+            return templates.TemplateResponse(
+                request,
+                "error.html",
+                context={
+                    "title": "Invalid Password",
+                    "icon": "🔒",
+                    "message": "The password you entered is incorrect.",
+                    "retry_url": f"/secret/{secret_id}/reveal",
+                },
+                status_code=403,
+            )
 
     update_viewed_status_stmt = update(Secret).filter_by(
         id=secret_id,
